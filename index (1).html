@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chitrakar AI — Free AI Image Generator</title>
+<meta name="description" content="Apne shabdon ko kalakari mein badlein. Chitrakar AI se muft mein AI-generated images banayein — koi login nahi, koi cost nahi.">
+
+<!-- ====================================================================
+  ADSENSE: Google AdSense approval milne ke baad, is <head> ke andar
+  apna AdSense verification script yahan paste karo:
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXX"></script>
+==================================================================== -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15121C;
+    --ink-soft:#1F1B29;
+    --panel:#24202F;
+    --panel-hi:#2E2940;
+    --coral:#FF6B57;
+    --coral-hi:#FF8A78;
+    --teal:#31D9C4;
+    --gold:#FFC857;
+    --paper:#F4EFE6;
+    --paper-dim:#C9C2D6;
+    --line:#3A3448;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(255,107,87,0.10), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(49,217,196,0.08), transparent 40%),
+      var(--ink);
+    color:var(--paper);
+    font-family:'Work Sans', sans-serif;
+    line-height:1.6;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding:0 24px;}
+
+  /* NAV */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 24px;
+    max-width:920px; margin:0 auto;
+  }
+  .brand{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:22px;
+    color:var(--paper);
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand .dot{color:var(--coral);}
+  nav a{color:var(--paper-dim); text-decoration:none; font-size:15px; margin-left:22px;}
+  nav a:hover{color:var(--coral-hi);}
+
+  /* HERO */
+  .hero{
+    text-align:center;
+    padding:36px 24px 20px;
+  }
+  .hero h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-style:italic;
+    font-size:clamp(34px,6vw,54px);
+    margin:0 0 14px;
+    color:var(--paper);
+    max-width:720px;
+    margin-left:auto; margin-right:auto;
+    line-height:1.15;
+  }
+  .hero h1 span{color:var(--coral);}
+  .hero p{
+    color:var(--paper-dim);
+    font-size:17px;
+    max-width:520px;
+    margin:0 auto 34px;
+  }
+
+  /* GENERATOR PANEL */
+  .studio{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .prompt-row{
+    display:flex; gap:10px; flex-wrap:wrap;
+  }
+  textarea{
+    flex:1 1 260px;
+    min-width:220px;
+    background:var(--ink-soft);
+    border:1px solid var(--line);
+    border-radius:12px;
+    color:var(--paper);
+    padding:14px 16px;
+    font-family:'Work Sans', sans-serif;
+    font-size:15.5px;
+    resize:none;
+    height:56px;
+  }
+  textarea:focus{outline:2px solid var(--coral); outline-offset:1px;}
+  textarea::placeholder{color:#7C7590;}
+
+  button.generate{
+    background:var(--coral);
+    color:#1A0E0B;
+    border:none;
+    border-radius:12px;
+    padding:0 26px;
+    font-weight:700;
+    font-size:15.5px;
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease;
+    height:56px;
+  }
+  button.generate:hover{background:var(--coral-hi); transform:translateY(-1px);}
+  button.generate:active{transform:translateY(0);}
+  button.generate:disabled{background:#5C4E48; cursor:progress; transform:none;}
+
+  .options{
+    display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;
+  }
+  select{
+    background:var(--ink-soft);
+    color:var(--paper-dim);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 12px;
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+  }
+
+  /* RESULT AREA */
+  .result{
+    margin-top:18px;
+    min-height:0;
+  }
+  .canvas-frame{
+    border-radius:16px;
+    overflow:hidden;
+    background:var(--ink-soft);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    aspect-ratio:1/1;
+    max-width:520px;
+    margin:0 auto;
+    position:relative;
+  }
+  .canvas-frame img{width:100%; height:100%; object-fit:cover; display:block;}
+  .placeholder-txt{color:#635A78; font-size:14.5px; text-align:center; padding:20px;}
+  .loading-txt{color:var(--teal); font-size:14.5px; text-align:center;}
+
+  .result-actions{
+    display:flex; justify-content:center; gap:10px; margin-top:14px;
+  }
+  .result-actions a, .result-actions button{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--paper-dim);
+    padding:9px 16px;
+    border-radius:10px;
+    font-size:14px;
+    text-decoration:none;
+    cursor:pointer;
+    font-family:'Work Sans', sans-serif;
+  }
+  .result-actions a:hover, .result-actions button:hover{border-color:var(--coral); color:var(--coral-hi);}
+
+  /* AD SLOT */
+  .ad-slot{
+    margin:38px 0;
+    border:1px dashed var(--line);
+    border-radius:14px;
+    padding:26px;
+    text-align:center;
+    color:#5A5268;
+    font-size:13px;
+  }
+
+  /* HOW IT WORKS */
+  .steps{margin-top:60px;}
+  .steps h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:28px;
+    text-align:center;
+    margin-bottom:30px;
+  }
+  .step-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+  }
+  @media(max-width:640px){ .step-grid{grid-template-columns:1fr;} }
+  .step{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px;
+  }
+  .step .num{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    color:var(--gold);
+    font-size:26px;
+    margin-bottom:8px;
+    display:block;
+  }
+  .step h3{margin:0 0 6px; font-size:16.5px; color:var(--paper);}
+  .step p{margin:0; font-size:14.5px; color:var(--paper-dim);}
+
+  /* GALLERY / INSPIRATION */
+  .inspire{margin-top:60px;}
+  .inspire h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:28px;
+    text-align:center;
+    margin-bottom:8px;
+  }
+  .inspire p.lead{
+    text-align:center; color:var(--paper-dim); margin-bottom:26px; font-size:15px;
+  }
+  .chip-row{display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+  .chip{
+    background:var(--panel-hi);
+    border:1px solid var(--line);
+    color:var(--paper-dim);
+    padding:9px 15px;
+    border-radius:20px;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .chip:hover{border-color:var(--teal); color:var(--teal);}
+
+  /* FOOTER */
+  footer{
+    margin-top:70px;
+    border-top:1px solid var(--line);
+    padding:28px 24px 40px;
+    text-align:center;
+    color:#5A5268;
+    font-size:13.5px;
+  }
+  footer a{color:var(--paper-dim); text-decoration:none; margin:0 8px;}
+  footer a:hover{color:var(--coral-hi);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><span class="dot">✦</span>Chitrakar AI</div>
+  <div>
+    <a href="#studio">Banayein</a>
+    <a href="#steps">Kaise Kaam Karta Hai</a>
+    <a href="about.html">About</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Shabdon se <span>kala</span> banayein,<br>bilkul muft mein.</h1>
+  <p>Ek line likhein, AI usse image mein badal dega. Koi login nahi, koi cost nahi — bas apni kalpana likhein.</p>
+</div>
+
+<div class="wrap">
+  <div class="studio" id="studio">
+    <div class="prompt-row">
+      <textarea id="promptInput" placeholder="jaise: barsaat mein bheega hua Jaipur ka Hawa Mahal, sunset ke rang mein"></textarea>
+      <button class="generate" id="genBtn" onclick="generateImage()">Banayein</button>
+    </div>
+    <div class="options">
+      <select id="styleSelect">
+        <option value="">Style: Default</option>
+        <option value="realistic photo, 4k, detailed">Realistic Photo</option>
+        <option value="watercolor painting, soft brush strokes">Watercolor</option>
+        <option value="anime style illustration">Anime</option>
+        <option value="oil painting, classical art style">Oil Painting</option>
+        <option value="3d render, octane render, cinematic lighting">3D Render</option>
+      </select>
+      <select id="ratioSelect">
+        <option value="1024x1024">Square (1:1)</option>
+        <option value="1024x1536">Portrait (2:3)</option>
+        <option value="1536x1024">Landscape (3:2)</option>
+      </select>
+    </div>
+
+    <div class="result">
+      <div class="canvas-frame" id="canvasFrame">
+        <p class="placeholder-txt">Aapki banayi hui image yahan dikhegi</p>
+      </div>
+      <div class="result-actions" id="resultActions" style="display:none;">
+        <a id="downloadLink" download="chitrakar-ai.jpg">Download</a>
+        <button onclick="generateImage(true)">Naya Variation</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad-slot">
+    Ad Slot — AdSense approval ke baad yahan <code>&lt;ins class="adsbygoogle"&gt;</code> code daalein
+  </div>
+
+  <div class="steps" id="steps">
+    <h2>Kaise kaam karta hai</h2>
+    <div class="step-grid">
+      <div class="step">
+        <span class="num">1</span>
+        <h3>Shabdon mein describe karein</h3>
+        <p>Jo image chahiye uska vivaran likhein — jitna detail, utna behtar result.</p>
+      </div>
+      <div class="step">
+        <span class="num">2</span>
+        <h3>Style aur size chunein</h3>
+        <p>Realistic, watercolor, anime jaise style options mein se ek chunein.</p>
+      </div>
+      <div class="step">
+        <span class="num">3</span>
+        <h3>Download karein</h3>
+        <p>Kuch second mein image ready ho jaayegi — seedhe apne device mein save karein.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="inspire">
+    <h2>Prerna chahiye?</h2>
+    <p class="lead">In ideas par click karke turant try karein</p>
+    <div class="chip-row">
+      <div class="chip" onclick="fillPrompt('Rajasthan ke registan mein oont-savari, sunset')">🐫 Registan Sunset</div>
+      <div class="chip" onclick="fillPrompt('ek chota sa gaon, barish ke baad, indradhanush ke saath')">🌈 Gaon aur Indradhanush</div>
+      <div class="chip" onclick="fillPrompt('cyberpunk city at night, neon lights, futuristic')">🌃 Cyberpunk City</div>
+      <div class="chip" onclick="fillPrompt('ek chai ki dukaan, subah subah, bhaap uthti hui')">☕ Chai ki Dukaan</div>
+    </div>
+  </div>
+</div>
+
+<footer id="about">
+  <p>Chitrakar AI ek muft AI image generation tool hai, jo har kisi ko kalakari ka anubhav dene ke liye banaya gaya hai.</p>
+  <div>
+    <a href="about.html">About</a> · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a> · <a href="contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+function fillPrompt(text){
+  document.getElementById('promptInput').value = text;
+  window.scrollTo({top: document.getElementById('studio').offsetTop - 20, behavior:'smooth'});
+}
+
+function generateImage(reroll){
+  const promptEl = document.getElementById('promptInput');
+  let prompt = promptEl.value.trim();
+  if(!prompt){
+    promptEl.focus();
+    promptEl.placeholder = "Pehle kuch likhein... jaise 'ek sundar pahad ka drishya'";
+    return;
+  }
+  const style = document.getElementById('styleSelect').value;
+  const ratio = document.getElementById('ratioSelect').value.split('x');
+  const width = ratio[0], height = ratio[1];
+
+  const fullPrompt = style ? (prompt + ", " + style) : prompt;
+  const seed = reroll ? Math.floor(Math.random()*100000) : Math.floor(Math.random()*100000);
+  const encoded = encodeURIComponent(fullPrompt);
+  const url = `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+
+  const frame = document.getElementById('canvasFrame');
+  const btn = document.getElementById('genBtn');
+  const actions = document.getElementById('resultActions');
+
+  btn.disabled = true;
+  btn.textContent = "Bana rahe hain...";
+  frame.innerHTML = '<p class="loading-txt">Kalakari taiyar ho rahi hai...</p>';
+  actions.style.display = 'none';
+
+  const img = new Image();
+  img.onload = function(){
+    frame.innerHTML = '';
+    frame.appendChild(img);
+    document.getElementById('downloadLink').href = url;
+    actions.style.display = 'flex';
+    btn.disabled = false;
+    btn.textContent = "Banayein";
+  };
+  img.onerror = function(){
+    frame.innerHTML = '<p class="placeholder-txt">Kuch gadbad ho gayi, dobara try karein</p>';
+    btn.disabled = false;
+    btn.textContent = "Banayein";
+  };
+  img.src = url;
+}
+</script>
+
+</body>
+</html>
